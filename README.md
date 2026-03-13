@@ -2,7 +2,7 @@
 
 A Cloudflare Worker that scores conversation excerpts using Workers AI and routes them based on confidence — automatically promoting high-signal knowledge to Notion and surfacing ambiguous items for human review.
 
-Built for the [Notion MCP Challenge](https://dev.to/challenges/notion).
+Built for the [Notion MCP Challenge](https://dev.to/t/notionchallenge).
 
 ## How it works
 
@@ -42,7 +42,7 @@ curl -X POST https://knowledge-evaluator.fpl-test.workers.dev/evaluate \
   -d '{"text": "Use db.prepare().bind().all() for D1 batch queries.", "source": "dev-chat"}'
 ```
 
-Full write-up: [DEV.to article](https://dev.to/dannwaneri)  
+Full write-up: [DEV.to article](https://dev.to/dannwaneri/i-built-a-knowledge-evaluator-that-uses-notion-to-judge-whats-worth-remembering-2mlf)  
 Demo video: [YouTube](https://youtu.be/ElpR79l0N6s)  
 MCP demo: [YouTube](https://youtu.be/-H-uUJ5uVxI)
 
