@@ -44,7 +44,7 @@ curl -X POST https://knowledge-evaluator.fpl-test.workers.dev/evaluate \
 
 Full write-up: [DEV.to article](https://dev.to/dannwaneri/i-built-a-knowledge-evaluator-that-uses-notion-to-judge-whats-worth-remembering-2mlf)  
 Demo video: [YouTube](https://youtu.be/ElpR79l0N6s)  
-MCP demo: [YouTube](https://youtu.be/-H-uUJ5uVxI)
+MCP demo: [YouTube](https://youtu.be/7XFDmJK7_CY)
 
 ## Stack
 
@@ -95,7 +95,17 @@ wrangler secret put REVIEW_QUEUE_ID
 wrangler secret put KNOWLEDGE_MEMORY_ID
 ```
 
-### 5. Deploy
+### 5. Optional: tune scoring thresholds
+
+Add to `wrangler.toml` to override the defaults (0.67 / 0.33):
+
+```toml
+[vars]
+HIGH_THRESHOLD = "0.75"
+LOW_THRESHOLD = "0.40"
+```
+
+### 6. Deploy
 
 ```bash
 wrangler deploy
@@ -126,7 +136,8 @@ Response:
   "signals": ["usage", "specificity"],
   "summary": "One sentence summary from the model",
   "destination": "review_queue",
-  "notion_page_id": "page-id"
+  "notion_page_id": "page-id",
+  "thresholds": { "high": 0.67, "low": 0.33 }
 }
 ```
 
