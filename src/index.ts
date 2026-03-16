@@ -1,10 +1,13 @@
 import { Hono } from 'hono';
 import type { Ai } from '@cloudflare/workers-types';
+
 type Env = {
   AI: Ai;
   NOTION_TOKEN: string;
   REVIEW_QUEUE_ID: string;
   KNOWLEDGE_MEMORY_ID: string;
+  HIGH_THRESHOLD?: string;
+  LOW_THRESHOLD?: string;
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -128,13 +131,17 @@ app.post('/evaluate', async (c) => {
     return c.json({ error: 'text is required' }, 400);
   }
 
+  // Tunable thresholds — override via wrangler.toml [vars] or wrangler secret
+  const highThreshold = parseFloat(c.env.HIGH_THRESHOLD ?? '0.67');
+  const lowThreshold = parseFloat(c.env.LOW_THRESHOLD ?? '0.33');
+
   const source = body.source || 'manual';
   const result = await evaluateKnowledge(c.env.AI, body.text);
 
   let destination: string;
   let notionPageId: string | undefined;
 
-  if (result.score >= 0.67) {
+  if (result.score >= highThreshold) {
     // High confidence → Knowledge Memory (auto-promoted)
     destination = 'knowledge_memory';
     const page = await writeToNotion(
@@ -147,7 +154,7 @@ app.post('/evaluate', async (c) => {
       body.text
     ) as { id: string };
     notionPageId = page.id;
-  } else if (result.score >= 0.33) {
+  } else if (result.score >= lowThreshold) {
     // Ambiguous → Review Queue (human judges)
     destination = 'review_queue';
     const page = await writeToNotion(
@@ -172,6 +179,7 @@ app.post('/evaluate', async (c) => {
     summary: result.summary,
     destination,
     notion_page_id: notionPageId,
+    thresholds: { high: highThreshold, low: lowThreshold },
   });
 });
 
